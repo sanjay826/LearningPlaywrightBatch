@@ -1,3 +1,7 @@
+/* 
+API Response Status Code Validator
+*/
+
 let statusCode = 200;
 
 switch (statusCode) {
