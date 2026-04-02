@@ -22,6 +22,20 @@
  * 3. Increment/Decrement: Executed after each iteration. Usually used to 
  *    update the counter (e.g., `i++` or `i--`).
  */
+// for loop 
+// Help you to repeat a block of code 
+// Increament Operator 
+let a = 10;
+let b= a++;
+console.log(b)
+
+let a1=10;
+let b1= ++a1;
+console.log(b1)
+
+
+
+
 
 // ============================================================================
 // Example 1: Basic Counting (1 to 5)
