@@ -832,3 +832,575 @@ console.log(fruits[fruits.length - 1]); // "date"
 | | `toSorted`, `toReversed`, `toSpliced`, `with` ⭐ |
 
 > ⭐ = ES2023 — the **safe, non-mutating** modern alternatives.
+
+---
+
+## 8. Deep-Dive: `slice` · `concat` · Spread `...` · `join`
+
+> 📌 Based on examples from `71_Array_Slicing.js`
+
+---
+
+### 📌 CATEGORY 9: Slicing, Combining & Joining — Interview Q&A
+
+---
+
+### Q36: What does `slice()` do? Does it mutate the original array?
+
+**Answer:**
+`slice(start, end)` returns a **new array** containing elements from `start` index up to (but **not including**) the `end` index.
+
+- It does **NOT** mutate the original array.
+- `end` is **exclusive** → actual range is `[start, end - 1]`.
+- If `end` is omitted, it slices from `start` to the last element.
+
+```javascript
+let arr = [1, 2, 3, 4, 5];
+
+console.log(arr.slice(1, 3));  // [2, 3]        → indices 1 and 2 only (not 3)
+console.log(arr.slice(2, 4));  // [3, 4]        → indices 2 and 3
+console.log(arr.slice(2));     // [3, 4, 5]     → index 2 to end
+console.log(arr.slice(0));     // [1, 2, 3, 4, 5] → full copy
+console.log(arr);              // [1, 2, 3, 4, 5] → original UNCHANGED ✅
+```
+
+---
+
+### Q37: How does negative indexing work in `slice()`?
+
+**Answer:**
+Negative indices count from the **end** of the array.
+- `-1` = last element, `-2` = second to last, and so on.
+- `slice(-2)` → last 2 elements.
+- `slice(-5)` on a 5-element array → entire array (same as `slice(0)`).
+
+```javascript
+let arr = [1, 2, 3, 4, 5];
+
+console.log(arr.slice(-2));    // [4, 5]           → last 2 elements
+console.log(arr.slice(-5));    // [1, 2, 3, 4, 5]  → all (same as slice(0))
+console.log(arr.slice(2, 5));  // [3, 4, 5]        → index 2 to end (explicit)
+```
+
+> **Rule:** `slice(-n)` is equivalent to `slice(arr.length - n)`.
+
+---
+
+### Q38: What is the difference between `slice()` and `splice()`?
+
+**Answer:**
+
+| Feature | `slice()` | `splice()` |
+|---------|-----------|------------|
+| Mutates original? | ❌ **No** | ✅ **Yes** |
+| Purpose | Extract a portion | Add / remove / replace in place |
+| Returns | New array (copy) | Array of removed elements |
+| Arguments | `(start, end)` | `(start, deleteCount, ...items)` |
+
+```javascript
+let arr = [1, 2, 3, 4, 5];
+
+// slice — does NOT touch original
+let part = arr.slice(1, 3);
+console.log(part); // [2, 3]
+console.log(arr);  // [1, 2, 3, 4, 5] ← untouched
+
+// splice — MODIFIES original
+let removed = arr.splice(1, 2);
+console.log(removed); // [2, 3]
+console.log(arr);     // [1, 4, 5] ← mutated!
+```
+
+> **Memory trick:** `sl**i**ce` → output **i**s a new array. `sp**l**ice` → **l**ives in the original.
+
+---
+
+### Q39: How do you use `slice()` to make a shallow copy of an entire array?
+
+**Answer:**
+Call `slice()` with no arguments — or `slice(0)`. Both return a full shallow copy.
+
+```javascript
+let original = [1, 2, 3, 4, 5];
+
+let copy1 = original.slice();    // most common
+let copy2 = original.slice(0);   // explicit start-from-0
+
+copy1.push(99);
+console.log(original); // [1, 2, 3, 4, 5] ← safe ✅
+console.log(copy1);    // [1, 2, 3, 4, 5, 99]
+```
+
+> **"Shallow"** means: if the array contains objects, only the object **references** are copied, not the objects themselves.
+
+---
+
+### Q40: What does `concat()` do? Does it mutate the original array?
+
+**Answer:**
+`concat()` merges two or more arrays (or values) and returns a **new array**. It does **NOT** mutate the originals.
+
+```javascript
+let a = [1, 2, 3];
+let b = [4, 5, 6];
+
+let c = a.concat(b);
+console.log(c); // [1, 2, 3, 4, 5, 6]
+console.log(a); // [1, 2, 3] ← untouched ✅
+console.log(b); // [4, 5, 6] ← untouched ✅
+```
+
+You can also concat single values and multiple arrays in one call:
+```javascript
+let result = [1].concat(2, 3, [4, 5], [6]);
+console.log(result); // [1, 2, 3, 4, 5, 6]
+```
+
+---
+
+### Q41: What is the Spread Operator (`...`) and how does it replace `concat()`?
+
+**Answer:**
+The **spread operator** (`...`) is an ES6 feature that expands an iterable (like an array) into individual elements. It is the **modern alternative** to `concat()` for merging arrays.
+
+```javascript
+let a = [1, 2, 3];
+let b = [4, 5, 6];
+
+// Old way: concat
+let merged1 = a.concat(b);
+console.log(merged1); // [1, 2, 3, 4, 5, 6]
+
+// Modern way: spread
+let merged2 = [...a, ...b];
+console.log(merged2); // [1, 2, 3, 4, 5, 6]
+```
+
+> **Advantage of spread:** You can insert elements anywhere inline:
+> ```javascript
+> let merged3 = [...a, 99, ...b, 100];
+> console.log(merged3); // [1, 2, 3, 99, 4, 5, 6, 100]
+> ```
+
+---
+
+### Q42: What are the differences between `concat()` and the Spread Operator?
+
+**Answer:**
+
+| Feature | `concat()` | Spread `[...a, ...b]` |
+|---------|------------|----------------------|
+| ES Version | ES5 | ES6+ |
+| Syntax | Method call | Inline literal |
+| Flexibility | Fixed — always appends | Insert elements anywhere |
+| Works with any iterable? | Partially | ✅ Yes (strings, Sets, Maps) |
+| Readability | Verbose | Clean & modern |
+
+```javascript
+let a = [1, 2];
+let b = [3, 4];
+
+// concat — appends at end only
+let r1 = a.concat(b);        // [1, 2, 3, 4]
+
+// spread — can insert anywhere
+let r2 = [...a, 99, ...b];   // [1, 2, 99, 3, 4]
+
+// Both create NEW arrays — neither mutates originals
+```
+
+> **Interview tip:** Spread also works with strings: `[..."hello"]` → `["h","e","l","l","o"]`
+
+---
+
+### Q43: What does `join()` do? What is the default separator?
+
+**Answer:**
+`join(separator)` converts all elements of an array into a **single string**, separated by the given separator.
+
+- Default separator is a **comma (`,`)** if none is provided.
+- It does **NOT** mutate the original array.
+
+```javascript
+let statuses = ["pass", "fail", "skip"];
+
+console.log(statuses.join(" | ")); // "pass | fail | skip"
+console.log(statuses.join(", "));  // "pass, fail, skip"
+console.log(statuses.join(""));    // "passfailskip"
+console.log(statuses.join());      // "pass,fail,skip"  ← default comma
+```
+
+---
+
+### Q44: What is the relationship between `join()` and `split()`?
+
+**Answer:**
+They are **exact inverses** of each other:
+- `split(separator)` → converts a **string** into an **array**
+- `join(separator)` → converts an **array** into a **string**
+
+```javascript
+// String → Array → String (round-trip)
+let original = "pass | fail | skip";
+let arr = original.split(" | ");  // ["pass", "fail", "skip"]
+let back = arr.join(" | ");       // "pass | fail | skip"
+
+console.log(arr);  // ["pass", "fail", "skip"]
+console.log(back); // "pass | fail | skip"
+console.log(original === back); // true ✅
+```
+
+> **Playwright use-case:** Grab all dropdown option texts with `allTextContents()` (returns array), then `join(" | ")` to log a clean summary string.
+
+---
+
+### Q45: What happens when `join()` encounters `null` or `undefined` in an array?
+
+**Answer:**
+`null` and `undefined` elements are converted to an **empty string** (`""`) by `join()`. They do NOT throw an error.
+
+```javascript
+let arr = ["pass", null, "skip", undefined, "fail"];
+console.log(arr.join(" | ")); // "pass |  | skip |  | fail"
+//                                         ^ empty  ^ empty
+```
+
+> This is useful to know in test automation where some values might be missing or optional.
+
+---
+
+### Q46: Tricky — What is the output of `[1, 2, 3].join()` vs `[1, 2, 3].toString()`?
+
+**Answer:**
+Both produce the same result in this case: `"1,2,3"`.
+
+```javascript
+console.log([1, 2, 3].join());      // "1,2,3"
+console.log([1, 2, 3].toString());  // "1,2,3"
+```
+
+**But `join()` is more powerful** because you can control the separator:
+```javascript
+console.log([1, 2, 3].join(" → ")); // "1 → 2 → 3"
+// toString() cannot do this
+```
+
+---
+
+### Q47: How do you safely sort an array without mutating it using `slice()` and spread?
+
+**Answer:**
+Both `slice()` and spread `[...]` create a shallow copy that you can then sort safely.
+
+```javascript
+let original = [3, 1, 4, 1, 5, 9];
+
+// Option 1: using slice()
+let sorted1 = original.slice().sort((a, b) => a - b);
+
+// Option 2: using spread
+let sorted2 = [...original].sort((a, b) => a - b);
+
+console.log(original); // [3, 1, 4, 1, 5, 9] ← safe ✅
+console.log(sorted1);  // [1, 1, 3, 4, 5, 9]
+console.log(sorted2);  // [1, 1, 3, 4, 5, 9]
+```
+
+> This is the **recommended Playwright pattern** for verifying whether UI elements are sorted (see Q2).
+
+---
+
+### Q48: Tricky — What does `[...a]` actually do? Is it the same as `a.slice()`?
+
+**Answer:**
+Yes — for plain arrays, `[...a]` and `a.slice()` **both create a shallow copy**. They behave identically for standard arrays.
+
+```javascript
+let a = [1, 2, 3];
+
+let copy1 = [...a];
+let copy2 = a.slice();
+
+console.log(copy1);         // [1, 2, 3]
+console.log(copy2);         // [1, 2, 3]
+console.log(copy1 === a);   // false → different reference ✅
+console.log(copy2 === a);   // false → different reference ✅
+```
+
+**Difference:** Spread works with **any iterable** (strings, Sets, Maps). `slice()` only works on arrays.
+
+```javascript
+let chars = [..."hello"];   // ["h", "e", "l", "l", "o"] ✅
+// "hello".slice() → returns a string, not an array
+```
+
+---
+
+### ✅ Quick Summary: slice · concat · spread · join
+
+| Method | Mutates? | Input | Returns | Use For |
+|--------|:--------:|-------|---------|---------|
+| `slice(start, end)` | ❌ No | Array | New sub-array | Extract portion / make copy |
+| `concat(...arrays)` | ❌ No | Array(s) / values | New merged array | Merge arrays (classic) |
+| `[...a, ...b]` spread | ❌ No | Any iterable | New merged array | Merge / copy (modern) |
+| `join(separator)` | ❌ No | Array | String | Convert array → string |
+
+> **🔑 Key Rule:** `slice`, `concat`, spread, and `join` are ALL **non-mutating**. They never change the original array.
+
+---
+
+### ➕ More: Edge Cases & Tricky Questions
+
+---
+
+### Q49: What happens when `slice()` indices are out of bounds?
+
+**Answer:**
+`slice()` handles out-of-bounds gracefully — it does **NOT** throw an error.
+- If `start` ≥ array length → returns an **empty array `[]`**
+- If `end` > array length → JavaScript clips it to the array length automatically
+
+```javascript
+let arr = [1, 2, 3, 4, 5];
+
+console.log(arr.slice(10));     // []         → start beyond length → empty
+console.log(arr.slice(2, 100)); // [3, 4, 5]  → end clipped to arr.length
+console.log(arr.slice(-1));     // [5]         → last element only
+console.log(arr.slice(3, 2));   // []          → start > end → empty
+```
+
+> **Interview trap:** `slice(3, 2)` — since start > end, it quietly returns `[]`, no error.
+
+---
+
+### Q50: Does `concat()` flatten nested arrays?
+
+**Answer:**
+**No** — `concat()` only flattens **one level** of nested arrays that are passed as **direct arguments**. It does NOT recursively flatten nested arrays inside the arrays being concatenated.
+
+```javascript
+let a = [1, 2];
+let nested = [[3, 4], [5, 6]];
+
+// concat flattens the direct argument (one level)
+let r1 = a.concat([3, 4]);
+console.log(r1); // [1, 2, 3, 4]  ← flattened ✅
+
+// But nested arrays inside are NOT flattened
+let r2 = a.concat(nested);
+console.log(r2); // [1, 2, [3, 4], [5, 6]]  ← still nested ⚠️
+
+// To fully flatten, use flat()
+let r3 = r2.flat();
+console.log(r3); // [1, 2, 3, 4, 5, 6] ✅
+```
+
+> **Key rule:** `concat([3, 4])` → spreads `3, 4` into the result. But `concat([[3, 4]])` → keeps `[3, 4]` as a sub-array.
+
+---
+
+### Q51: How do you immutably INSERT or REMOVE an element without `splice()` (using `slice` + `concat` or spread)?
+
+**Answer:**
+Since `splice()` **mutates** the array, for immutable patterns (React state, functional programming) you can combine `slice()` with `concat()` or spread:
+
+```javascript
+let arr = ["a", "b", "c", "d", "e"];
+
+// ── Immutable INSERT at index 2 ──────────────────────────────
+// Using slice + concat
+let inserted1 = arr.slice(0, 2).concat(["X"], arr.slice(2));
+console.log(inserted1); // ["a", "b", "X", "c", "d", "e"]
+
+// Using spread
+let inserted2 = [...arr.slice(0, 2), "X", ...arr.slice(2)];
+console.log(inserted2); // ["a", "b", "X", "c", "d", "e"]
+
+// ── Immutable REMOVE at index 2 ──────────────────────────────
+let removed = [...arr.slice(0, 2), ...arr.slice(3)];
+console.log(removed);  // ["a", "b", "d", "e"]
+
+console.log(arr); // ["a", "b", "c", "d", "e"] ← original SAFE ✅
+```
+
+> **Playwright / React use-case:** Removing a test step from a steps array without touching the original configuration.
+
+---
+
+### Q52: Can you chain `slice()` and `concat()` together?
+
+**Answer:**
+Yes — since both return **new arrays**, they can be chained freely.
+
+```javascript
+let a = [1, 2, 3, 4, 5];
+let b = [6, 7, 8, 9, 10];
+
+// Take last 2 of 'a', then first 3 of 'b', merge them
+let result = a.slice(-2).concat(b.slice(0, 3));
+console.log(result); // [4, 5, 6, 7, 8]
+```
+
+> This pattern is useful when working with paginated data or combining segments of test data sets.
+
+---
+
+### Q53: How do you use spread to remove duplicates from a combined array?
+
+**Answer:**
+Combine the spread operator with `Set` — a `Set` automatically removes duplicates, then spread it back into an array:
+
+```javascript
+let a = [1, 2, 3];
+let b = [2, 3, 4, 5];
+
+// Merge both arrays, then remove duplicates
+let unique = [...new Set([...a, ...b])];
+console.log(unique); // [1, 2, 3, 4, 5]
+```
+
+> This is the **cleanest one-liner** for merging and deduplicating arrays in modern JavaScript.
+
+---
+
+### Q54: How do you use `slice()` + `join()` to get a readable subset of an array as a string?
+
+**Answer:**
+You can chain `slice()` and `join()` to extract a portion and display it as a string — very useful for logging in test reports:
+
+```javascript
+let testResults = ["pass", "pass", "fail", "skip", "pass", "fail"];
+
+// Show only the first 3 results as a readable string
+let summary = testResults.slice(0, 3).join(" → ");
+console.log(summary); // "pass → pass → fail"
+
+// Show only failed results
+let failedOnly = testResults.filter(r => r === "fail").join(", ");
+console.log(failedOnly); // "fail, fail"
+```
+
+> **Playwright use-case:** After collecting all row statuses from a table, `slice` the first page worth and `join` them into a log message.
+
+---
+
+### Q55: Playwright-Specific — How do you combine multiple locator text arrays into one clean string report?
+
+**Answer:**
+A common automation task is collecting texts from multiple UI sections and combining them:
+
+```javascript
+// Simulating texts from two different sections of the page
+const menuItems = ["Home", "About", "Contact"];
+const footerLinks = ["Privacy", "Terms", "Help"];
+
+// Combine all into one array using spread, then join for a report
+const allLinks = [...menuItems, ...footerLinks];
+const report = allLinks.join(" | ");
+
+console.log(report);
+// "Home | About | Contact | Privacy | Terms | Help"
+
+// In real Playwright:
+// const menuTexts   = await page.locator('.menu-item').allTextContents();
+// const footerTexts = await page.locator('.footer-link').allTextContents();
+// const fullReport  = [...menuTexts, ...footerTexts].join(" | ");
+```
+
+> This pattern is great for **generating assertion messages** or **logging full page navigation structure** in test reports.
+
+---
+
+### 📌 CATEGORY 10: Array Destructuring, Copying & Loops — Interview Gotchas
+
+---
+
+### Q56: Why should you NOT use the `for...in` loop to iterate over an array?
+
+**Answer:**
+`for...in` is meant for iterating over the properties of plain objects, not arrays. Using it on arrays is dangerous because:
+1. **Iterates over indices as STRINGS:** It yields `"0"`, `"1"`, `"2"`, not numbers, which can cause math bugs (e.g., `"0" + 1` = `"01"`).
+2. **Iterates over prototype properties:** If the array's prototype was modified by an external library, `for...in` will iterate over those extra properties too.
+3. **No guaranteed order:** The iteration order is not strictly guaranteed.
+
+**Always use:** `for...of` (for values), a classic `for` loop, or `forEach()` for iterating through arrays.
+
+---
+
+### Q57: Look at this code. What will be the output and why? (Reference vs Copy)
+```javascript
+let arr = [1, 2, 3];
+let copy = arr;
+copy.push(4);
+console.log(arr.length);
+```
+
+**Answer:**
+The output is **`4`**.
+*Why?* Arrays in JavaScript are objects. `let copy = arr;` does **NOT** create a new array. It only copies the **reference** (memory address) to the array. Both `arr` and `copy` point to the exact same array in memory. Modifying `copy` also modifies `arr`.
+
+---
+
+### Q58: What are the best ways to create a "Shallow Copy" of an array?
+
+**Answer:**
+A **shallow copy** creates a brand new array, but if it contains nested objects/arrays, the references within are still shared.
+To safely create a new array (shallow copy), use one of these methods:
+
+1. **Spread Operator (`...`)** — (Modern & Preferred)
+   ```javascript
+   let copy1 = [...arr];
+   ```
+2. **`slice()` method**
+   ```javascript
+   let copy2 = arr.slice();
+   ```
+3. **`Array.from()`**
+   ```javascript
+   let copy3 = Array.from(arr);
+   ```
+4. **`concat()` method**
+   ```javascript
+   let copy4 = [].concat(arr);
+   ```
+
+---
+
+### Q59: How do you extract specific elements from an array using Destructuring, and what is the Rest operator?
+
+**Answer:**
+**Array Destructuring** allows you to unpack values from arrays into distinct variables based on their position.
+```javascript
+let statuses = ["pass", "fail", "skip"];
+let [first, second] = statuses;
+
+console.log(first);  // "pass"
+console.log(second); // "fail"
+```
+
+The **Rest operator (`...`)** is used inside a destructuring pattern to collect all remaining elements into a new array. It must always be the **last** element in the pattern.
+```javascript
+let scores = [10, 20, 30, 40, 50];
+let [a, b, ...remaining] = scores;
+
+console.log(a);         // 10
+console.log(b);         // 20
+console.log(remaining); // [30, 40, 50]
+```
+
+---
+
+### ✅ Final Master Summary: Slicing & Combining
+
+| Scenario | Best Tool | Mutates? |
+|----------|-----------|:--------:|
+| Extract part of array | `slice(start, end)` | ❌ No |
+| Get last N elements | `slice(-N)` | ❌ No |
+| Make a full copy | `slice()` or `[...arr]` | ❌ No |
+| Merge two arrays (classic) | `concat()` | ❌ No |
+| Merge two arrays (modern) | `[...a, ...b]` spread | ❌ No |
+| Insert at position (immutable) | `[...slice, item, ...slice]` | ❌ No |
+| Remove at position (immutable) | `[...slice(0,i), ...slice(i+1)]` | ❌ No |
+| Merge + deduplicate | `[...new Set([...a, ...b])]` | ❌ No |
+| Array → string | `join(separator)` | ❌ No |
+| Subset → string | `slice(start, end).join(sep)` | ❌ No |
