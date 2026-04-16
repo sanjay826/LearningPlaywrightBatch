@@ -188,3 +188,35 @@ function hoistedFunction() {
 
 > **🎯 Interview-Ready Answer**:
 > “This works because function declarations in JavaScript are hoisted. During compilation, the entire function is moved to the top of its scope, allowing it to be called before its actual declaration in the code. Note that Function Expressions and Arrow Functions are not hoisted in the same way.”
+
+
+## 11. What is Spread Operator in Function Arguments?   
+> The spread operator (...) is used to pass an array of arguments to a function.
+
+### Example:
+function sum(a, b, c) {
+    return a + b + c;
+}
+const numbers = [1, 2, 3];
+console.log(sum(...numbers)); // Output: 6
+
+## What is closures ? 
+A closure is when a function remembers variables from its outer scope even after the outer function has finished executing. 
+
+## What is Higher order function ? 
+A higher-order function is a function that accepts another function as an argument or returns a function as its result.
+
+## What is Pure function ? 
+A pure function is a function that always returns the same output for the same input and has no side effects.
+
+## What is Impure function ? 
+An impure function is a function that does not always return the same output for the same input or has side effects.
+
+## What is callback function ?  
+A callback function is a function that is passed as an argument to another function and is executed after the other function has completed its execution.
+
+## What is currying ? 
+Currying is a functional programming technique where a function that takes multiple arguments is transformed into a sequence of functions that each take a single argument. 
+
+## What is function composition ? 
+Function composition is a technique where multiple functions are combined to create a new function. 
