@@ -2,13 +2,13 @@ let grade ;
 let score =75;
 
 if(typeof score!== "number"){
-    console.log("Are you Chutiya !!!");
-    return;
+    console.log("Please enter a valid number");
+    process.exit();
 }
 
 if(score< 0 || score >100){
-    console.log("Definataly you are big Chutiya !!");
-    return;
+    console.log("Score must be between 0 and 100");
+    process.exit();
 }
 
 if(score >90){
@@ -18,6 +18,8 @@ if(score >90){
 } else if(score >70){
     grade ="C"
 } else if(score> 60) {
+    grade = "D"
+} else {
     grade = "F"
 }
 
